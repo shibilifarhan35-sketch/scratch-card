@@ -9,6 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
 html,body{margin:0}
+/* Layout: one narrow coupon column on phones. A perforated ticket holds the scratch panel; staff desk is a plain stack of panels. */
 :root {
   --bg: #eef2f3;
   --ink: #10252a;
@@ -111,6 +112,8 @@ details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var
 .notice { font-size: 13px; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .win-in .prize { animation: none; } #foil { transition: none; } }
 </style>
+
+
 </head>
 <body>
 <main id="app">
