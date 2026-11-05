@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scratch and Win</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&family=DM+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+html,body{margin:0}
+:root {
+  --bg: #eef2f3;
+  --ink: #10252a;
+  --muted: #52666b;
+  --card: #ffffff;
+  --line: #cfd9db;
+  --teal: #0b5d5a;
+  --accent: #f2a900;
+  --accent-ink: #2a1d00;
+  --ok: #1f7a4d;
+  --bad: #b3382c;
+  --foil-a: #c3ccce;
+  --foil-b: #eef2f3;
+  --foil-text: #5d7176;
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1719; --ink: #e7f0f0; --muted: #8fa6a9; --card: #13262a; --line: #284046;
+    --teal: #4dc2ba; --accent: #ffc233; --accent-ink: #2a1d00; --ok: #5bd08f; --bad: #ff8a7a;
+    --foil-a: #3a4b4f; --foil-b: #5a6e73; --foil-text: #c9d6d8;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1719; --ink: #e7f0f0; --muted: #8fa6a9; --card: #13262a; --line: #284046;
+  --teal: #4dc2ba; --accent: #ffc233; --accent-ink: #2a1d00; --ok: #5bd08f; --bad: #ff8a7a;
+  --foil-a: #3a4b4f; --foil-b: #5a6e73; --foil-text: #c9d6d8;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--display); font-size: 16px; line-height: 1.45;
+  padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 440px; margin: 0 auto; display: grid; gap: 18px; }
+h1, h2, h3, p { margin: 0; }
+h1, h2 { text-wrap: balance; }
+.brand { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.brand b { font-weight: 800; font-stretch: 112%; letter-spacing: .02em; font-size: 17px; text-transform: uppercase; overflow-wrap: anywhere; }
+.brand a, .linkbtn { color: var(--teal); font-weight: 600; font-size: 14px; text-decoration: none; background: none; border: 0; padding: 0; font-family: inherit; cursor: pointer; }
+.brand a:hover, .linkbtn:hover { text-decoration: underline; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
+/* ticket */
+.ticket { background: var(--card); border: 1px solid var(--line); border-radius: 18px; position: relative; padding: 22px 20px 0; display: grid; gap: 16px; }
+.ticket h1 { font-size: 40px; line-height: 1; font-weight: 900; font-stretch: 118%; letter-spacing: -.01em; }
+.window { position: relative; height: 168px; border-radius: 12px; background: var(--bg); border: 2px dashed var(--line); overflow: hidden; }
+.prize { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 6px; padding: 12px; }
+.prize strong { font-size: 38px; line-height: 1.05; font-weight: 900; font-stretch: 112%; color: var(--teal); text-wrap: balance; }
+.prize span { font-size: 14px; color: var(--muted); }
+.win-in .prize { animation: pop .5s cubic-bezier(.2,1.4,.4,1); }
+@keyframes pop { from { transform: scale(.85); } to { transform: scale(1); } }
+#foil { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; transition: opacity .45s; }
+#foil.gone { opacity: 0; pointer-events: none; }
+.btn { font-family: inherit; font-weight: 700; font-size: 16px; border: 0; border-radius: 10px; padding: 13px 18px; background: var(--accent); color: var(--accent-ink); cursor: pointer; min-height: 48px; }
+.btn.alt { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn:focus-visible, input:focus-visible, summary:focus-visible, .linkbtn:focus-visible, a:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+.perf { position: relative; height: 0; border-top: 2px dashed var(--line); margin: 6px -20px 0; }
+.perf::before, .perf::after { content: ""; position: absolute; top: -13px; width: 24px; height: 24px; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); }
+.perf::before { left: -13px; clip-path: inset(0 0 0 50%); }
+.perf::after { right: -13px; clip-path: inset(0 50% 0 0); }
+.stub { padding: 14px 0 20px; display: grid; gap: 10px; }
+.stub p { color: var(--muted); font-size: 14px; }
+.code { font-family: var(--mono); font-weight: 500; font-size: 34px; letter-spacing: .08em; color: var(--ink); text-align: center; padding: 10px 6px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); overflow-wrap: anywhere; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row > * { flex: 1 1 140px; min-width: 0; }
+.fine { font-size: 13px; color: var(--muted); text-align: center; }
+
+/* staff */
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 12px; min-width: 0; }
+.panel h2 { font-size: 20px; font-weight: 800; font-stretch: 108%; }
+.panel p { color: var(--muted); font-size: 14px; }
+input[type=text] { font-family: var(--mono); font-size: 20px; letter-spacing: .08em; text-transform: uppercase; width: 100%; padding: 12px 14px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); min-height: 48px; }
+input.plain { font-family: var(--display); font-size: 14px; letter-spacing: 0; text-transform: none; }
+.result { border-radius: 10px; padding: 12px 14px; border: 1.5px solid var(--line); display: grid; gap: 4px; }
+.result b { font-size: 18px; }
+.result.ok { border-color: var(--ok); }
+.result.ok b { color: var(--ok); }
+.result.bad { border-color: var(--bad); }
+.result.bad b { color: var(--bad); }
+.result span { font-size: 14px; color: var(--muted); }
+ul.log { list-style: none; margin: 0; padding: 0; display: grid; }
+ul.log li { display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+ul.log li:first-child { border-top: 0; }
+ul.log .mono { font-family: var(--mono); }
+ul.log span:last-child { color: var(--muted); text-align: right; }
+.poster { width: 100%; max-width: 340px; height: auto; justify-self: center; border-radius: 10px; border: 1px solid var(--line); }
+.linkline { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; background: var(--bg); border-radius: 8px; padding: 8px 10px; border: 1px solid var(--line); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 8px 4px; border-top: 1px solid var(--line); }
+th { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); border-top: 0; }
+td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+details summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--teal); }
+.notice { font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .win-in .prize { animation: none; } #foil { transition: none; } }
+</style>
+</head>
+<body>
+<main id="app">
+  <!-- CUSTOMER -->
+  <section id="customer" style="display:contents">
+    <div class="brand"><b class="shopName"></b><a href="#staff" id="toStaff">Staff</a></div>
+    <article class="ticket" id="ticket">
+      <div>
+        <p class="eyebrow">Today's reward</p>
+        <h1>Scratch &amp; win</h1>
+      </div>
+      <div class="window" id="win">
+        <div class="prize"><strong id="prizeLabel"></strong><span id="prizeDetail"></span></div>
+        <canvas id="foil" aria-label="Silver scratch panel. Scratch with your finger to reveal your reward."></canvas>
+      </div>
+      <button class="btn" id="revealBtn" type="button">Reveal without scratching</button>
+      <div class="perf"></div>
+      <div class="stub" id="stub"></div>
+    </article>
+    <p class="fine" id="finePrint"></p>
+  </section>
+
+  <!-- STAFF -->
+  <section id="staff" style="display:contents" hidden>
+    <div class="brand"><b>Staff desk</b><a href="#" id="toCustomer">Customer view</a></div>
+
+    <div class="panel">
+      <h2>Redeem a code</h2>
+      <form id="redeemForm" class="row" autocomplete="off">
+        <input type="text" id="codeInput" placeholder="3K9 X7Q 4F" maxlength="14" aria-label="Customer reward code" style="flex-basis:200px">
+        <button class="btn" type="submit" style="flex-basis:110px">Check</button>
+      </form>
+      <div id="result" hidden></div>
+      <button class="btn" id="markBtn" type="button" hidden>Mark as redeemed</button>
+      <p class="notice" id="staffNotice"></p>
+    </div>
+
+    <div class="panel">
+      <h2>Redeemed so far</h2>
+      <ul class="log" id="log"><li><span>Nothing redeemed yet</span></li></ul>
+    </div>
+
+    <div class="panel">
+      <h2>Counter poster</h2>
+      <p>Print this or show it on a screen at the billing counter. Customers scan it with their phone camera.</p>
+      <canvas id="poster" class="poster" width="1080" height="1500" aria-label="Poster with QR code"></canvas>
+      <button class="btn" id="dlBtn" type="button">Save poster image</button>
+      <div class="linkline" id="linkLine"></div>
+      <div class="row">
+        <button class="btn alt" id="copyBtn" type="button">Copy link</button>
+      </div>
+      <details>
+        <summary>QR points to the wrong link?</summary>
+        <p style="margin:8px 0">Paste your page's share link here. The poster updates on this device.</p>
+        <input type="text" class="plain" id="linkOverride" placeholder="https://claude.ai/artifact/..." aria-label="Share link">
+        <button class="btn alt" id="linkSave" type="button" style="margin-top:8px">Use this link</button>
+      </details>
+    </div>
+
+    <div class="panel">
+      <h2>Prizes</h2>
+      <table><thead><tr><th>Prize</th><th>Chance</th></tr></thead><tbody id="prizeRows"></tbody></table>
+      <p>To change the shop name or prizes, ask Claude to update this page.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  // ---- shop settings (edit these, then republish) ----
+  var SHOP = "Bismi Chicken Stall, Mangad";
+  var SHARE_URL = "";
+  var SALT = "kb7-2026";
+  var EXPIRY_DAYS = 7;
+  var PRIZES = [
+    { id: 1, label: "Visit again", detail: "no prize this time, scratch again tomorrow", weight: 49, none: true },
+    { id: 2, label: "₹5 off", detail: "on today's bill", weight: 25 },
+    { id: 3, label: "₹10 off", detail: "on today's bill", weight: 15 },
+    { id: 4, label: "₹15 off", detail: "on today's bill", weight: 10 },
+    { id: 5, label: "Winner winner chicken dinner", detail: "get chicken for just ₹100", weight: 1 }
+  ];
+
+  var $ = function (id) { return document.getElementById(id); };
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function dayNum() { return Math.floor(Date.now() / 864e5); }
+  function fmtDay(n) { return new Date(n * 864e5).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" }); }
+  function b36(n, len) { var s = n.toString(36).toUpperCase(); while (s.length < len) s = "0" + s; return s.slice(-len); }
+  function check(body) {
+    var h = 0x811c9dc5, s = body + SALT;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+    return b36(h % 1296, 2);
+  }
+  function pretty(c) { return c.slice(0, 3) + " " + c.slice(3, 6) + " " + c.slice(6); }
+  function rnd(n) { var a = new Uint32Array(1); (window.crypto || {}).getRandomValues ? crypto.getRandomValues(a) : (a[0] = Math.random() * 4294967296); return a[0] % n; }
+  function pickPrize() {
+    var total = PRIZES.reduce(function (s, p) { return s + p.weight; }, 0), r = rnd(total * 100) / 100;
+    for (var i = 0; i < PRIZES.length; i++) { if (r < PRIZES[i].weight) return PRIZES[i]; r -= PRIZES[i].weight; }
+    return PRIZES[0];
+  }
+  function makeCode(prize) {
+    var body = String(prize.id) + b36(dayNum() % 1296, 2) + b36(rnd(46656), 3);
+    return body + check(body);
+  }
+  function parseCode(raw) {
+    var c = String(raw || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (c.length !== 8) return { error: "A code has 8 letters and numbers." };
+    var body = c.slice(0, 6);
+    if (check(body) !== c.slice(6)) return { error: "This code is not from this shop's page." };
+    var prize = PRIZES.filter(function (p) { return String(p.id) === c[0]; })[0];
+    if (!prize) return { error: "Unknown prize in this code." };
+    if (prize.none) return { error: "This card had no prize." };
+    var now = dayNum(), diff = ((now % 1296) - parseInt(body.slice(1, 3), 36) + 1296) % 1296;
+    var issued = now - diff;
+    return { code: c, prize: prize, issued: issued, expires: issued + EXPIRY_DAYS, expired: diff > EXPIRY_DAYS };
+  }
+
+  document.querySelectorAll(".shopName").forEach(function (n) { n.textContent = SHOP; });
+  document.title = "Scratch and Win";
+
+  // ---- customer ----
+  var foil = $("foil"), fctx = null, scratching = false, revealed = false, state = null, lastCheck = 0, moves = 0;
+
+  function loadState() {
+    var saved = null;
+    try { saved = JSON.parse(lsGet("scratchwin-v1") || "null"); } catch (e) {}
+    if (saved && saved.day === dayNum() && saved.code && saved.v === 4 && PRIZES.some(function (x) { return x.id === saved.prize; })) return saved;
+    var prize = pickPrize();
+    var s = { day: dayNum(), code: makeCode(prize), prize: prize.id, revealed: false, v: 4 };
+    lsSet("scratchwin-v1", JSON.stringify(s));
+    return s;
+  }
+  function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function paintFoil() {
+    var w = $("win").clientWidth, h = $("win").clientHeight, dpr = window.devicePixelRatio || 1;
+    foil.width = w * dpr; foil.height = h * dpr;
+    fctx = foil.getContext("2d", { willReadFrequently: true });
+    fctx.scale(dpr, dpr);
+    fctx.globalCompositeOperation = "source-over";
+    var g = fctx.createLinearGradient(0, 0, w, h);
+    g.addColorStop(0, css("--foil-a")); g.addColorStop(.5, css("--foil-b")); g.addColorStop(1, css("--foil-a"));
+    fctx.fillStyle = g; fctx.fillRect(0, 0, w, h);
+    fctx.fillStyle = css("--foil-text");
+    fctx.font = "800 18px Archivo, Arial, sans-serif"; fctx.textAlign = "center"; fctx.textBaseline = "middle";
+    fctx.fillText("SCRATCH HERE", w / 2, h / 2);
+  }
+  function renderStub() {
+    var p = PRIZES.filter(function (x) { return x.id === state.prize; })[0];
+    $("prizeLabel").textContent = p.label;
+    $("prizeDetail").textContent = p.detail;
+    var parsed = parseCode(state.code);
+    if (!revealed) {
+      $("stub").innerHTML = "<p>Scratch the silver panel with your finger. One scratch per day.</p>";
+      return;
+    }
+    if (p.none) {
+      $("stub").innerHTML = "<p>No prize this time. Come back tomorrow for another scratch.</p>";
+      return;
+    }
+    $("stub").innerHTML =
+      '<p class="eyebrow">Your code</p><div class="code" id="codeBox"></div>' +
+      '<p>Show this code at the counter before you pay. Valid until <b id="expTxt"></b>.</p>' +
+      '<div class="row"><button class="btn alt" id="copyCode" type="button">Copy code</button></div>' +
+      '<p>Come back tomorrow for another scratch.</p>';
+    $("codeBox").textContent = pretty(state.code);
+    $("expTxt").textContent = fmtDay(parsed.expires || dayNum() + EXPIRY_DAYS);
+    $("copyCode").onclick = function () {
+      var b = $("copyCode");
+      (navigator.clipboard ? navigator.clipboard.writeText(state.code) : Promise.reject()).then(function () { b.textContent = "Copied"; }, function () {
+        var r = document.createRange(); r.selectNodeContents($("codeBox")); var s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Selected";
+      });
+    };
+  }
+  function reveal() {
+    if (revealed) return;
+    revealed = true; state.revealed = true; lsSet("scratchwin-v1", JSON.stringify(state));
+    foil.classList.add("gone"); $("win").classList.add("win-in");
+    $("revealBtn").hidden = true; renderStub();
+  }
+  function clearedShare() {
+    var w = foil.width, h = foil.height, d;
+    try { d = fctx.getImageData(0, 0, w, h).data; } catch (e) { return 0; }
+    var n = 0, clear = 0;
+    for (var i = 3; i < d.length; i += 64) { n++; if (d[i] < 40) clear++; }
+    return n ? clear / n : 0;
+  }
+  function scratchAt(e, first) {
+    var r = foil.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    fctx.globalCompositeOperation = "destination-out";
+    fctx.lineWidth = 40; fctx.lineCap = "round"; fctx.lineJoin = "round";
+    if (first || !scratchAt.last) { fctx.beginPath(); fctx.arc(x, y, 20, 0, 7); fctx.fill(); }
+    else { fctx.beginPath(); fctx.moveTo(scratchAt.last.x, scratchAt.last.y); fctx.lineTo(x, y); fctx.stroke(); }
+    scratchAt.last = { x: x, y: y };
+    var now = Date.now();
+    if (now - lastCheck > 150) { lastCheck = now; if (clearedShare() > 0.5) reveal(); }
+  }
+  function startCustomer() {
+    state = loadState(); revealed = !!state.revealed;
+    $("finePrint").textContent = "One scratch per day per phone. Rewards are valid for " + EXPIRY_DAYS + " days.";
+    renderStub();
+    if (revealed) { foil.classList.add("gone"); $("revealBtn").hidden = true; return; }
+    paintFoil();
+    foil.addEventListener("pointerdown", function (e) { scratching = true; scratchAt.last = null; foil.setPointerCapture(e.pointerId); scratchAt(e, true); });
+    foil.addEventListener("pointermove", function (e) { if (scratching && !revealed) scratchAt(e); });
+    foil.addEventListener("pointerup", function () { scratching = false; scratchAt.last = null; if (!revealed && clearedShare() > 0.5) reveal(); });
+    foil.addEventListener("pointercancel", function () { scratching = false; });
+    $("revealBtn").onclick = reveal;
+  }
+
+  // ---- staff ----
+  var db = null, canRedeem = false, current = null, localRedeemed = {};
+  try { localRedeemed = JSON.parse(lsGet("scratchwin-redeemed") || "{}"); } catch (e) {}
+
+  function shareLink() { return lsGet("scratchwin-link") || SHARE_URL || location.href.split("#")[0]; }
+
+  function drawPoster() {
+    var c = $("poster"), x = c.getContext("2d"), W = c.width, H = c.height;
+    var teal = "#0b5d5a", gold = "#f2a900";
+    x.fillStyle = teal; x.fillRect(0, 0, W, H);
+    x.textAlign = "center"; x.textBaseline = "alphabetic";
+    var size = 92; x.fillStyle = "#ffffff";
+    do { x.font = "800 " + size + "px Archivo, Arial, sans-serif"; size -= 4; } while (x.measureText(SHOP.toUpperCase()).width > W - 140 && size > 40);
+    x.fillText(SHOP.toUpperCase(), W / 2, 150);
+    x.fillStyle = gold; x.font = "900 150px Archivo, Arial, sans-serif";
+    x.fillText("SCRATCH", W / 2, 330); x.fillText("& WIN", W / 2, 470);
+    var cardW = 720, cx = (W - cardW) / 2, cy = 540;
+    x.fillStyle = "#ffffff"; x.beginPath();
+    if (x.roundRect) x.roundRect(cx, cy, cardW, cardW, 36); else x.rect(cx, cy, cardW, cardW);
+    x.fill();
+    var url = shareLink();
+    if (window.qrcode) {
+      var qr = qrcode(0, "M"); qr.addData(url); qr.make();
+      var n = qr.getModuleCount(), quiet = 3, cell = Math.floor((cardW - 60) / (n + quiet * 2)), qs = cell * n;
+      var ox = cx + (cardW - qs) / 2, oy = cy + (cardW - qs) / 2;
+      x.fillStyle = "#0a1a1c";
+      for (var r = 0; r < n; r++) for (var q = 0; q < n; q++) if (qr.isDark(r, q)) x.fillRect(ox + q * cell, oy + r * cell, cell, cell);
+    } else {
+      x.fillStyle = "#0a1a1c"; x.font = "600 34px Archivo, Arial, sans-serif"; x.fillText("QR code could not load", W / 2, cy + cardW / 2);
+    }
+    x.fillStyle = "#ffffff"; x.font = "700 56px Archivo, Arial, sans-serif";
+    x.fillText("Scan  •  Scratch  •  Win", W / 2, 1380);
+    x.fillStyle = "#bfe3e0"; x.font = "500 38px Archivo, Arial, sans-serif";
+    x.fillText("Show your code at the counter before you pay", W / 2, 1440);
+    $("linkLine").textContent = url;
+  }
+
+  function showResult(kind, title, lines) {
+    var r = $("result"); r.hidden = false; r.className = "result " + kind; r.innerHTML = "";
+    var b = document.createElement("b"); b.textContent = title; r.appendChild(b);
+    lines.forEach(function (t) { var s = document.createElement("span"); s.textContent = t; r.appendChild(s); });
+  }
+  function redeemedInfo(code) {
+    if (db) return db.doc("redeemed/" + code).get().then(function (s) { return s.exists ? s.data() : null; }).catch(function () { return localRedeemed[code] || null; });
+    return Promise.resolve(localRedeemed[code] || null);
+  }
+  function fmtTime(t) { return new Date(t).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }); }
+
+  function checkCode(raw) {
+    $("markBtn").hidden = true; current = null;
+    var p = parseCode(raw);
+    if (p.error) { showResult("bad", "Not valid", [p.error]); return; }
+    redeemedInfo(p.code).then(function (info) {
+      if (info) { showResult("bad", "Already used", [p.prize.label + " was redeemed on " + fmtTime(info.at)]); return; }
+      if (p.expired) { showResult("bad", "Expired", [p.prize.label + ", issued " + fmtDay(p.issued) + ", expired " + fmtDay(p.expires)]); return; }
+      showResult("ok", "Valid: " + p.prize.label, [p.prize.detail, "Issued " + fmtDay(p.issued) + ", valid until " + fmtDay(p.expires)]);
+      current = p; $("markBtn").hidden = false; $("markBtn").disabled = !canRedeem && !!db;
+    });
+  }
+  function markRedeemed() {
+    if (!current) return;
+    var rec = { prize: current.prize.label, at: Date.now() }, code = current.code, btn = $("markBtn");
+    btn.disabled = true;
+    var done = function () {
+      localRedeemed[code] = rec; lsSet("scratchwin-redeemed", JSON.stringify(localRedeemed));
+      showResult("ok", "Redeemed", [rec.prize + " given to customer"]); btn.hidden = true; current = null; $("codeInput").value = "";
+      if (!db) renderLog(Object.keys(localRedeemed).map(function (k) { return { code: k, prize: localRedeemed[k].prize, at: localRedeemed[k].at }; }));
+    };
+    if (db) db.doc("redeemed/" + code).set(rec).then(done, function () { showResult("bad", "Could not save", ["Check your connection and try again."]); btn.disabled = false; });
+    else done();
+  }
+  function renderLog(items) {
+    var ul = $("log"); ul.innerHTML = "";
+    if (!items.length) { var li0 = document.createElement("li"); li0.textContent = "Nothing redeemed yet"; ul.appendChild(li0); return; }
+    items.sort(function (a, b) { return b.at - a.at; }).slice(0, 20).forEach(function (it) {
+      var li = document.createElement("li"), a = document.createElement("span"), b = document.createElement("span");
+      a.innerHTML = '<span class="mono"></span> '; a.firstChild.textContent = pretty(it.code); a.appendChild(document.createTextNode(it.prize));
+      b.textContent = fmtTime(it.at); li.appendChild(a); li.appendChild(b); ul.appendChild(li);
+    });
+  }
+  var staffReady = false;
+  function startStaff() {
+    if (staffReady) { drawPoster(); return; }
+    staffReady = true;
+    var total = PRIZES.reduce(function (s, p) { return s + p.weight; }, 0), tb = $("prizeRows");
+    PRIZES.forEach(function (p) {
+      var tr = document.createElement("tr"), a = document.createElement("td"), b = document.createElement("td");
+      a.textContent = p.label + " (" + p.detail + ")"; b.textContent = Math.round(p.weight / total * 100) + "%";
+      tr.appendChild(a); tr.appendChild(b); tb.appendChild(tr);
+    });
+    $("redeemForm").addEventListener("submit", function (e) { e.preventDefault(); checkCode($("codeInput").value); });
+    $("markBtn").addEventListener("click", markRedeemed);
+    $("copyBtn").addEventListener("click", function () {
+      var b = $("copyBtn");
+      (navigator.clipboard ? navigator.clipboard.writeText(shareLink()) : Promise.reject()).then(function () { b.textContent = "Copied"; }, function () {
+        var r = document.createRange(); r.selectNodeContents($("linkLine")); var s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Selected, now copy";
+      });
+    });
+    $("linkSave").addEventListener("click", function () {
+      var v = $("linkOverride").value.trim();
+      if (/^https:\/\//.test(v)) { lsSet("scratchwin-link", v); drawPoster(); }
+    });
+    $("dlBtn").addEventListener("click", function () {
+      var btn = $("dlBtn");
+      $("poster").toBlob(function (blob) {
+        window.claude && window.claude.use ? window.claude.use("downloads").then(function (d) {
+          if (!d) { btn.textContent = "Saving is unavailable here. Screenshot the poster instead."; return; }
+          d.save({ filename: "scratch-and-win-poster.png", data: blob }).catch(function (e) { if (e && e.code !== "declined") btn.textContent = "Could not save. Screenshot the poster instead."; });
+        }) : (btn.textContent = "Saving is unavailable here. Screenshot the poster instead.");
+      }, "image/png");
+    });
+    var ready = document.fonts && document.fonts.load ? Promise.race([document.fonts.load("900 80px Archivo"), new Promise(function (r) { setTimeout(r, 1500); })]) : Promise.resolve();
+    ready.then(drawPoster, drawPoster);
+
+    var cl = window.claude;
+    if (!cl || !cl.use) { $("staffNotice").textContent = "Redemptions are saved on this phone only."; renderLog(Object.keys(localRedeemed).map(function (k) { return { code: k, prize: localRedeemed[k].prize, at: localRedeemed[k].at }; })); return; }
+    Promise.all([cl.use("user"), cl.use("db")]).then(function (res) {
+      var user = res[0]; db = res[1];
+      return (user ? user.canEdit() : Promise.resolve(false)).then(function (ok) {
+        canRedeem = !!ok;
+        if (db && canRedeem) {
+          $("staffNotice").textContent = "Signed in as shop owner. Redemptions are saved to your page and block reuse of a code.";
+          db.collection("redeemed").orderBy("at", "desc").limit(20).onSnapshot(function (snap) {
+            renderLog(snap.docs.map(function (d) { var v = d.data(); return { code: d.id, prize: v.prize, at: v.at }; }));
+          }, function () { $("staffNotice").textContent = "Could not load shared redemptions."; });
+        } else {
+          db = null;
+          $("staffNotice").textContent = "Open this page signed in to Claude as the shop owner to keep a shared redemption record. Until then, redemptions are saved on this phone only.";
+          renderLog(Object.keys(localRedeemed).map(function (k) { return { code: k, prize: localRedeemed[k].prize, at: localRedeemed[k].at }; }));
+        }
+      });
+    }, function () { $("staffNotice").textContent = "Redemptions are saved on this phone only."; });
+  }
+
+  // ---- routing ----
+  function route() {
+    var staff = location.hash === "#staff";
+    $("staff").hidden = !staff; $("customer").hidden = staff;
+    $("staff").style.display = staff ? "contents" : "none";
+    $("customer").style.display = staff ? "none" : "contents";
+    if (staff) startStaff(); else if (!state) startCustomer();
+  }
+  window.addEventListener("hashchange", route);
+  route();
+})();
+</script>
+
+</body>
+</html>
